@@ -1,0 +1,23 @@
+name: Build VST3 (macOS)
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DEDU_COPY_AFTER_BUILD=OFF
+      - name: Build
+        run: cmake --build build --config Release --parallel
+      - name: Package
+        run: |
+          mkdir out
+          cp -R "build/EduSaturator_artefacts/Release/VST3/Edu Saturator.vst3" out/
+          cd out && zip -r -y ../EduSaturator-macOS-VST3.zip .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EduSaturator-macOS-VST3
+          path: EduSaturator-macOS-VST3.zip
